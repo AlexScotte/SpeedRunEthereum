@@ -7,12 +7,23 @@ import './ExampleExternalContract.sol';
 contract Staker {
   ExampleExternalContract public exampleExternalContract;
 
-  constructor(address exampleExternalContractAddress) public {
+  event Stake(address, uint256);
+
+  uint256 public constant treshold = 1 ether;
+  mapping(address => uint256) public balances;
+
+  constructor(address exampleExternalContractAddress) {
     exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
   }
 
   // TODO: Collect funds in a payable `stake()` function and track individual `balances` with a mapping:
   //  ( make sure to add a `Stake(address,uint256)` event and emit it for the frontend <List/> display )
+  function stake() public payable {
+    console.log(balances[msg.sender]);
+    balances[msg.sender] += msg.value;
+    console.log(balances[msg.sender]);
+    emit Stake(msg.sender, msg.value);
+  }
 
   // TODO: After some `deadline` allow anyone to call an `execute()` function
   //  It should call `exampleExternalContract.complete{value: address(this).balance}()` to send all the value
