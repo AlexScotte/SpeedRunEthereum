@@ -57,12 +57,13 @@ artifacts
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-yarn.lock
+
 .idea
 
 # Local Netlify folder
 .netlify
 *.tsbuildinfo
 *.stackdump
-
-0x*.txt
+.yalc
+yalc.lock
+packages/vite-app-ts/dist
