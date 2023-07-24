@@ -20,6 +20,7 @@ packages/**/data
 packages/hardhat-ts/cache
 # secrets
 .secret
+*.secret
 
 packages/subgraph/config/config.json
 tenderly.yaml
@@ -67,3 +68,5 @@ yarn-error.log*
 .yalc
 yalc.lock
 packages/vite-app-ts/dist
+
+0x*.txt
