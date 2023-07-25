@@ -11,6 +11,7 @@ contract Vendor is Ownable {
 
   uint256 public constant tokensPerEth = 100;
   event BuyTokens(address buyer, uint256 amountOfEth, uint256 amountOfTokens);
+  event SellTokens(address seller, uint256 amountOfEth, uint256 amountOfTokens);
 
   constructor(address tokenAddress) {
     yourToken = YourToken(tokenAddress);
@@ -19,17 +20,23 @@ contract Vendor is Ownable {
   // ToDo: create a payable buyTokens() function:
   function buyTokens() public payable {
     uint256 amountOfTokens = msg.value * tokensPerEth;
-    yourToken.transfer(msg.sender, msg.value);
+    yourToken.transfer(msg.sender, amountOfTokens);
     emit BuyTokens(msg.sender, msg.value, amountOfTokens);
   }
 
   // ToDo: create a withdraw() function that lets the owner withdraw ETH
-  function withdraw(uint256 amountOfToken) public onlyOwner {
-    console.log(yourToken.balanceOf(owner()));
-    require(yourToken.balanceOf(owner()) >= amountOfToken, 'not enough token in the contract');
-
-    yourToken.transfer(owner(), amountOfToken);
+  function withdraw() public onlyOwner {
+    require(address(this).balance > 0, 'nothing to withdraw');
+    payable(msg.sender).transfer(address(this).balance);
   }
 
   // ToDo: create a sellTokens() function:
+  function sellTokens(uint256 amountOfToken) public {
+    require(yourToken.balanceOf(msg.sender) >= amountOfToken, 'not enough token for this user');
+
+    yourToken.transferFrom(msg.sender, address(this), amountOfToken);
+
+    payable(msg.sender).transfer(amountOfToken / tokensPerEth);
+    emit SellTokens(msg.sender, amountOfToken / tokensPerEth, amountOfToken);
+  }
 }
