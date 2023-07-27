@@ -25,22 +25,42 @@ contract DEX {
     /**
      * @notice Emitted when ethToToken() swap transacted
      */
-    event EthToTokenSwap();
+    event EthToTokenSwap(
+        address swapper,
+        string txDetails,
+        uint256 ethInput,
+        uint256 tokenOutput
+    );
 
     /**
      * @notice Emitted when tokenToEth() swap transacted
      */
-    event TokenToEthSwap();
+    event TokenToEthSwap(
+        address swapper,
+        string txDetails,
+        uint256 tokensInput,
+        uint256 ethOutput
+    );
 
     /**
      * @notice Emitted when liquidity provided to DEX and mints LPTs.
      */
-    event LiquidityProvided();
+    event LiquidityProvided(
+        address liquidityProvider,
+        uint256 tokensInput,
+        uint256 ethInput,
+        uint256 liquidityMinted
+    );
 
     /**
      * @notice Emitted when liquidity removed from DEX and decreases LPT count within DEX.
      */
-    event LiquidityRemoved();
+    event LiquidityRemoved(
+        address liquidityRemover,
+        uint256 tokensOutput,
+        uint256 ethOutput,
+        uint256 liquidityWithdrawn
+    );
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -96,14 +116,64 @@ contract DEX {
     /**
      * @notice sends Ether to DEX in exchange for $BAL
      */
-    function ethToToken() public payable returns (uint256 tokenOutput) {}
+    function ethToToken() public payable returns (uint256 tokenOutput) {
+        require(msg.value > 0, "No ETH sent");
+
+        // ETH reserve
+        uint256 ethReserve = address(this).balance - msg.value;
+
+        // Token reserve
+        uint256 tokenReserve = token.balanceOf(address(this));
+
+        // Get number of token in function of reserves
+        tokenOutput = price(msg.value, ethReserve, tokenReserve);
+
+        require(
+            token.transfer(msg.sender, tokenOutput),
+            "ethToToken(): reverted swap."
+        );
+        emit EthToTokenSwap(
+            msg.sender,
+            "Eth to Balloons",
+            msg.value,
+            tokenOutput
+        );
+        return tokenOutput;
+    }
 
     /**
      * @notice sends $BAL tokens to DEX in exchange for Ether
      */
-    function tokenToEth(
-        uint256 tokenInput
-    ) public returns (uint256 ethOutput) {}
+    function tokenToEth(uint256 tokenInput) public returns (uint256 ethOutput) {
+        require(tokenInput > 0, "No Token sent");
+
+        // ETH reserve
+        uint256 ethReserve = address(this).balance;
+
+        // Token reserve
+        uint256 tokenReserve = token.balanceOf(address(this));
+
+        // Get number of token in function of reserves
+        ethOutput = price(tokenInput, tokenReserve, tokenReserve);
+
+        // Get token from sender to put in contract
+        require(
+            token.transferFrom(msg.sender, address(this), tokenInput),
+            "tokenToEth(): reverted swap."
+        );
+
+        // Send eth to sender
+        payable(msg.sender).transfer(ethOutput);
+
+        emit TokenToEthSwap(
+            msg.sender,
+            "Balloons to ETH",
+            tokenInput,
+            ethOutput
+        );
+
+        return ethOutput;
+    }
 
     /**
      * @notice allows deposits of $BAL and $ETH to liquidity pool
