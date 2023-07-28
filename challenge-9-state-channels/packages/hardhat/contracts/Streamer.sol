@@ -25,7 +25,7 @@ contract Streamer is Ownable {
 
         require(msg.value > 0, "No funds sent");
         require(
-            balances[msg.sender] != 0,
+            balances[msg.sender] == 0,
             "User has already a running channel"
         );
         balances[msg.sender] = msg.value;

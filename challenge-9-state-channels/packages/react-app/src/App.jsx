@@ -329,8 +329,6 @@ function App(props) {
     return window.userChannel;
   }
 
-
-  
   //This is the wisdome the client is paying for. It'd better be good.
   let recievedWisdom = "";
 
@@ -474,7 +472,7 @@ function App(props) {
        *  recreate the packed, hashed, and arrayified message from reimburseService (above),
        *  and then use ethers.utils.verifyMessage() to confirm that voucher signer was
        *  `clientAddress`. (If it wasn't, log some error message and return).
-      */
+       */
 
       const existingVoucher = vouchers()[clientAddress];
 
@@ -899,7 +897,7 @@ function App(props) {
                     </p>
                   </div>
                 ) : (
-                  <div style={{ padding: 8 }}>
+                  <div style={{ padding: 8, backgroundColor: "red" }}>
                     <Button
                       type="primary"
                       onClick={() => {
