@@ -22,6 +22,14 @@ contract Streamer is Ownable {
         - updates the balances mapping with the eth received in the function call
         - emits an Opened event
         */
+
+        require(msg.value > 0, "No funds sent");
+        require(
+            balances[msg.sender] != 0,
+            "User has already a running channel"
+        );
+        balances[msg.sender] = msg.value;
+        emit Opened(msg.sender, msg.value);
     }
 
     function timeLeft(address channel) public view returns (uint256) {
