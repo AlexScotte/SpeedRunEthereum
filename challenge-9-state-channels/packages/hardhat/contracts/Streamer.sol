@@ -67,6 +67,29 @@ contract Streamer is Ownable {
             - adjust the channel balance, and pay the contract owner. (Get the owner address withthe `owner()` function)
             - emit the Withdrawn event
         */
+
+        // Get signer
+        address signer = ecrecover(
+            prefixedHashed,
+            voucher.sig.v,
+            voucher.sig.r,
+            voucher.sig.s
+        );
+
+        // Signer need to run a channel with balance greater that the voucher's updated balance
+        require(
+            balances[signer] >= voucher.updatedBalance,
+            "Channel balance NOK"
+        );
+
+        // Get the paiement value
+        uint256 payout = balances[signer] - voucher.updatedBalance;
+
+        // Transfer paiement to owner
+        payable(owner()).transfer(payout);
+
+        // Decrease balance of signer
+        balances[signer] -= payout;
     }
 
     /*

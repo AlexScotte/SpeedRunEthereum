@@ -387,7 +387,6 @@ function App(props) {
     const packed = ethers.utils.solidityPack(["uint256"], [updatedBalance]);
     const hashed = ethers.utils.keccak256(packed);
     const arrayified = ethers.utils.arrayify(hashed);
-
     // Why not just sign the updatedBalance string directly?
     //
     // Two considerations:
@@ -473,6 +472,22 @@ function App(props) {
        *  and then use ethers.utils.verifyMessage() to confirm that voucher signer was
        *  `clientAddress`. (If it wasn't, log some error message and return).
        */
+
+      // Create a byte array of uint256
+      const packed = ethers.utils.solidityPack(["uint256"], [updatedBalance]);
+
+      // Get the hash
+      const hashed = ethers.utils.keccak256(packed);
+
+      // Conversion en tableau d'octet
+      const arrayified = ethers.utils.arrayify(hashed);
+
+      // Verify the signature
+      const voucherSigner = ethers.utils.verifyMessage(arrayified, voucher.data.signature);
+      if (voucherSigner != clientAddress) {
+        console.log("Vocher verification: the voucher Signer is not the client address!! ");
+        return;
+      }
 
       const existingVoucher = vouchers()[clientAddress];
 
